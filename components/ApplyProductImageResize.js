@@ -59,7 +59,7 @@ class ApplyProductImageResize extends React.Component {
                           id: this.props.selectedItems[variantId].images.edges[0].node.id,
                           src: this.props.selectedItems[variantId].images.edges[0].node.originalSrc
                         }
-                        console.log(this.props.selectedItems[variantId].images.edges[0].node.transformedSrc)
+                        
                         promise = promise.then(() => handleSubmit(
                           { variables: { productId: this.props.selectedItems[variantId].id, image:productImageInput, maxWidth:2048, maxHeight:2048 } }
                         ));
