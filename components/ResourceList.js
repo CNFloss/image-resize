@@ -11,7 +11,7 @@ import {
 import store from 'store-js';
 import { Redirect } from '@shopify/app-bridge/actions';
 import { Context } from '@shopify/app-bridge-react';
-import ApplyProductImageResize from './ApplyProductimageResize';
+import ApplyProductImageResize from './ApplyProductImageResize';
 
 // GraphQL query that retrieves products by ID
 const GET_PRODUCTS_BY_ID = gql`
