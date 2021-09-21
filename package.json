@@ -18,6 +18,8 @@
     "url": "https://github.com/shopify/shopify-app-node/issues"
   },
   "dependencies": {
+    "@shopify/app-bridge-utils": "^2.0.2",
+    "store-js": "^2.0.4",
     "@babel/core": "7.12.10",
     "@babel/polyfill": "^7.6.0",
     "@babel/preset-env": "^7.12.11",
