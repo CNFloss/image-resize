@@ -1,21 +1,30 @@
-import React from 'react';
-import { Page, Layout, EmptyState} from "@shopify/polaris";
-import { ResourcePicker, TitleBar } from '@shopify/app-bridge-react';
-import store from 'store-js';
-import ResourceListWithProducts from '../components/ResourceList';
+import React from "react";
+import { Page, Layout, EmptyState } from "@shopify/polaris";
+import { ResourcePicker, TitleBar } from "@shopify/app-bridge-react";
+import store from "store-js";
+import ResourceListWithProducts from "../components/ResourceList";
 
-const img = 'https://cdn.shopify.com/s/files/1/0757/9955/files/empty-state.svg';
+const img = "https://cdn.shopify.com/s/files/1/0757/9955/files/empty-state.svg";
 
 class Index extends React.Component {
-  state = { open: false };
+  state = {
+    open: false,
+    selectedProducts: null,
+  };
   render() {
     // A constant that defines your app's empty state
-    const emptyState = !store.get('ids');
+    const emptyState = !this.state.selectedProducts;
+
+    const product = async (limit, sinceId) => {
+      const res = await this.props.fetch("/products?" + sinceId);
+      return await res.json();
+    };
+
     return (
       <Page>
         <TitleBar
           primaryAction={{
-            content: 'Select products',
+            content: "Select products",
             onAction: () => this.setState({ open: true }),
           }}
         />
@@ -23,7 +32,21 @@ class Index extends React.Component {
           resourceType="Product"
           showVariants={false}
           open={this.state.open}
-          onSelection={(resources) => this.handleSelection(resources)}
+          onSelection={(resources) => {
+            const idsFromResources = resources.selection.map((product) => {
+              return product.id.substring(
+                product.id.lastIndexOf("/") + 1,
+                product.id.length
+              );
+            });
+            product(0, idsFromResources[0]).then((data) => {
+              store.set("ids", idsFromResources);
+              this.setState({
+                selectedProducts: [data.body.product],
+                open: false,
+              });
+            });
+          }}
           onCancel={() => this.setState({ open: false })}
         />
         {emptyState ? ( // Controls the layout of your app's empty state
@@ -31,7 +54,7 @@ class Index extends React.Component {
             <EmptyState
               heading="Resize Image Products"
               action={{
-                content: 'Select products',
+                content: "Select products",
                 onAction: () => this.setState({ open: true }),
               }}
               image={img}
@@ -41,16 +64,15 @@ class Index extends React.Component {
           </Layout>
         ) : (
           // Uses the new resource list that retrieves products by IDs
-          <ResourceListWithProducts />
+          <ResourceListWithProducts
+            key={this.state.selectedProducts[0].id}
+            products={this.state.selectedProducts}
+            fetch={this.props.fetch}
+          />
         )}
       </Page>
     );
   }
-  handleSelection = (resources) => {
-    const idsFromResources = resources.selection.map((product) => product.id);
-    this.setState({ open: false });
-    store.set('ids', idsFromResources);
-  };
 }
 
 export default Index;

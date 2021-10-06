@@ -1,83 +1,78 @@
-import React, { useState } from 'react';
-import gql from 'graphql-tag';
-import { Mutation } from 'react-apollo';
-import { Layout, Button, Banner, Toast, Stack, Frame } from '@shopify/polaris';
-import { Context } from '@shopify/app-bridge-react';
-
-const RESIZE_PRODUCT_IMAGE = gql`
-  mutation productImageUpdate($productId: ID!, $image: ImageInput!, $maxWidth: Int!, $maxHeight: Int!) {
-    productImageUpdate(productId: $productId, image: $image) {
-      image {
-        id
-        originalSrc: transformedSrc(maxWidth: $maxWidth, maxHeight: $maxHeight)
-      }
-      userErrors {
-        field
-        message
-      }
-    }
-  }
-`;
+import React, { useState } from "react";
+import { Layout, Button, Banner, Toast, Stack, Frame } from "@shopify/polaris";
+import { Context } from "@shopify/app-bridge-react";
+import Pica from "pica";
 
 class ApplyProductImageResize extends React.Component {
   static contextType = Context;
 
   render() {
-    return ( // Uses mutation's input to update product prices
-      <Mutation mutation={RESIZE_PRODUCT_IMAGE}>
-        {(handleSubmit, {error, data}) => {
-          if (!!data) console.log(data)
-          const [hasResults, setHasResults] = useState(false);
+    const productImageUpdate = async (id, src) => {
+      const res = await this.props.fetch("/products", {
+        method: "POST",
+        data: src,
+      });
+      return await res.json();
+    };
+    const canvas = document.createElement("canvas");
+    canvas.width = 2048;
+    canvas.height = 2048;
+    const pica = Pica();
 
-          const showError = error && (
-            <Banner status="critical">{error.message}</Banner>
-          );
+    function readFile(file) {
+      return new Promise((resolve, reject) => {
+        var fr = new FileReader();
+        fr.onload = () => {
+          let base64String = "";
+          base64String = fr.result.replace("data:", "").replace(/^.+,/, "");
 
-          const showToast = hasResults && (
-            <Toast
-              content="Successfully updated"
-              onDismiss={() => setHasResults(false)}
-            />
-          );
+          resolve(base64String);
+        };
+        fr.onerror = reject;
+        fr.readAsDataURL(file);
+      });
+    }
 
-          return (
-            <Frame>
-              {showToast}
-              <Layout.Section>
-                {showError}
-              </Layout.Section>
-
-              <Layout.Section>
-                <Stack distribution={"center"}>
-                  <Button
-                    primary
-                    textAlign={"center"}
-                    onClick={() => {
-                      let promise = new Promise((resolve) => resolve());
-                      for (const variantId in this.props.selectedItems) {
-                        const productImageInput = {
-                          id: this.props.selectedItems[variantId].images.edges[0].node.id,
-                          src: this.props.selectedItems[variantId].images.edges[0].node.originalSrc
-                        }
-                        
-                        promise = promise.then(() => handleSubmit(
-                          { variables: { productId: this.props.selectedItems[variantId].id, image:productImageInput, maxWidth:2048, maxHeight:2048 } }
-                        ));
-                      }
-
-                      if (promise) {
-                        promise.then(() => this.props.onUpdate().then(() => setHasResults(true)));
-                    }}
-                  }
-                  >
-                    Resize Product Images
-                  </Button>
-                </Stack>
-              </Layout.Section>
-            </Frame>
-          );
-        }}
-      </Mutation>
+    return (
+      <Frame>
+        <Layout.Section>
+          <Stack distribution={"center"}>
+            <Button
+              primary
+              textAlign={"center"}
+              onClick={() => {
+                let promise = new Promise((resolve) => resolve());
+                for (const variantId in this.props.selectedItems) {
+                  const canvas = document.createElement("canvas");
+                  canvas.width = 2048;
+                  canvas.height = 2048;
+                  let img = new Image(
+                    this.props.selectedItems[variantId].image.width,
+                    this.props.selectedItems[variantId].image.height
+                  );
+                  img.crossOrigin = "Anonymous";
+                  img.src = this.props.selectedItems[variantId].image.src;
+                  promise = pica
+                    .resize(img, canvas)
+                    .then((result) => {
+                      return pica.toBlob(result, "image/jpeg");
+                    })
+                    .then((blob) => {
+                      return readFile(blob);
+                    })
+                    .then((url) => {
+                      console.log(url);
+                      productImageUpdate(variantId, url);
+                      return { src: url };
+                    });
+                }
+              }}
+            >
+              Crop Product Images
+            </Button>
+          </Stack>
+        </Layout.Section>
+      </Frame>
     );
   }
 }
