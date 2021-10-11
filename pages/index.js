@@ -39,12 +39,20 @@ class Index extends React.Component {
                 product.id.length
               );
             });
-            product(0, idsFromResources[0]).then((data) => {
-              store.set("ids", idsFromResources);
+            let productsTempArray = [];
+            for (let prod of idsFromResources) {
+              let temp = product(0, prod).then((data) => {
+                return data.body.product;
+              });
+              productsTempArray.push(temp);
+            }
+            Promise.all(productsTempArray).then((values) => {
+              console.log(values);
               this.setState({
-                selectedProducts: [data.body.product],
+                selectedProducts: values,
                 open: false,
               });
+              store.set("ids", idsFromResources);
             });
           }}
           onCancel={() => this.setState({ open: false })}

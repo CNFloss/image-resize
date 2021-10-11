@@ -1,4 +1,5 @@
 import "@babel/polyfill";
+import "isomorphic-fetch";
 import dotenv from "dotenv";
 import createShopifyAuth, { verifyRequest } from "@shopify/koa-shopify-auth";
 import Shopify, { ApiVersion, DataType } from "@shopify/shopify-api";
@@ -6,6 +7,8 @@ import Koa from "koa";
 import next from "next";
 import Router from "koa-router";
 import queryString from "query-string";
+import jimp from "jimp";
+import fs from "fs";
 
 dotenv.config();
 const port = parseInt(process.env.PORT, 10) || 8081;
@@ -81,7 +84,6 @@ app.prepare().then(async () => {
   router.get("/products", verifyRequest(), async (ctx) => {
     const session = await Shopify.Utils.loadCurrentSession(ctx.req, ctx.res);
     const client = new Shopify.Clients.Rest(session.shop, session.accessToken);
-    console.log(ctx.req);
     ctx.body = await client.get({
       path: "products/" + ctx.req._parsedUrl.query,
     });
@@ -97,17 +99,26 @@ app.prepare().then(async () => {
         session.shop,
         session.accessToken
       );
-      const { id } = queryString.parse(ctx.req._parsedUrl.query);
-      const src = ctx.req.body;
-      console.log(session.accessToken);
-      console.log(Object.keys(ctx.req));
-      console.log(typeof src);
+      const width = 2048;
+      const height = 2048;
+      const { id, url } = queryString.parse(ctx.req._parsedUrl.search);
+      console.log(url);
+      let src = await jimp
+        .read(url)
+        .then((image) => image.resize(2048, 2048))
+        .then((resizedImage) => resizedImage.getBase64Async(jimp.AUTO));
 
-      console.log(id);
+      src = src.replace("data:", "").replace(/^.+,/, "");
       try {
         const data = await client.post({
           path: "products/" + id + "/images",
-          data: { image: { attachment: payload, filename: "changelater.png" } },
+          data: {
+            image: {
+              position: 1,
+              attachment: src,
+              filename: `${id}/d=${width}x${height}.png`,
+            },
+          },
           type: DataType.JSON,
         });
         console.log(data);

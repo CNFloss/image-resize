@@ -1,6 +1,4 @@
 import React from "react";
-import gql from "graphql-tag";
-import { Query } from "react-apollo";
 import {
   Card,
   ResourceList,
@@ -8,8 +6,6 @@ import {
   TextStyle,
   Thumbnail,
 } from "@shopify/polaris";
-import store from "store-js";
-import { Redirect } from "@shopify/app-bridge/actions";
 import { Context } from "@shopify/app-bridge-react";
 import ApplyProductImageResize from "./ApplyProductImageResize";
 
@@ -27,10 +23,8 @@ class ResourceListWithProducts extends React.Component {
   }
 
   render() {
-    console.log(this.props);
-    const app = this.context;
-
     const nodesById = {};
+    console.log(this.props.products);
     this.props.products.forEach((node) => (nodesById[node.id] = node));
 
     return (
