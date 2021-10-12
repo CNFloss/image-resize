@@ -99,13 +99,13 @@ app.prepare().then(async () => {
         session.shop,
         session.accessToken
       );
-      const width = 2048;
-      const height = 2048;
-      const { id, url } = queryString.parse(ctx.req._parsedUrl.search);
+      const { id, url, width, height } = queryString.parse(
+        ctx.req._parsedUrl.search
+      );
       console.log(url);
       let src = await jimp
         .read(url)
-        .then((image) => image.resize(2048, 2048))
+        .then((image) => image.resize(parseInt(width), parseInt(height)))
         .then((resizedImage) => resizedImage.getBase64Async(jimp.AUTO));
 
       src = src.replace("data:", "").replace(/^.+,/, "");
