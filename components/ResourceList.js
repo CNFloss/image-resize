@@ -38,6 +38,7 @@ class ResourceListWithProducts extends React.Component {
   render() {
     const nodesById = {};
     if (!!this.state.selectedItems.length) {
+      console.log("refetch products");
       this.state.selectedItems.forEach((node) => (nodesById[node.id] = node));
     } else {
       this.props.products.forEach((node) => (nodesById[node.id] = node));
