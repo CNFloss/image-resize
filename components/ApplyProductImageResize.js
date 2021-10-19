@@ -103,10 +103,7 @@ class ApplyProductImageResize extends React.Component {
               onClick={() => {
                 let temp = [];
                 for (const variantId in this.props.selectedItems) {
-                  console.log(
-                    variantId,
-                    this.props.selectedItems[variantId].image.src
-                  );
+                  console.log(variantId, this.props.selectedItems[variantId]);
                   temp.push(
                     productImageUpdate(
                       variantId,
