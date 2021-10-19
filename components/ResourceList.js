@@ -99,20 +99,20 @@ class ResourceListWithProducts extends React.Component {
                       <TextStyle variation="strong">{item.title}</TextStyle>
                     </h3>
                     Suggested Size:{" "}
-                    {item.image.width / item.image.height < 1.4
+                    {item.image.height / item.image.width < 1.4
                       ? "Landscape"
                       : "Portrait"}{" "}
                     Needed?:{" "}
-                    {Math.round((item.image.width / item.image.height) * 10) /
+                    {Math.round((item.image.height / item.image.width) * 10) /
                       10 ===
                       1 ||
-                    Math.round((item.image.width / item.image.height) * 10) /
+                    Math.round((item.image.height / item.image.width) * 10) /
                       10 ===
                       1.3
                       ? "No"
                       : "Yes"}
                     Ratio:{" "}
-                    {Math.round((item.image.width / item.image.height) * 10) /
+                    {Math.round((item.image.height / item.image.width) * 10) /
                       10 ===
                       1}
                   </Stack.Item>
