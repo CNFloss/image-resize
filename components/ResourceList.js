@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  Card,
-  ResourceList,
-  Stack,
-  TextStyle,
-  Thumbnail,
-} from "@shopify/polaris";
+import { ResourceList, Stack, TextStyle, Thumbnail } from "@shopify/polaris";
 import { Context } from "@shopify/app-bridge-react";
 import ApplyProductImageResize from "./ApplyProductImageResize";
 
@@ -21,11 +15,33 @@ class ResourceListWithProducts extends React.Component {
       selectedNodes: {},
     };
   }
+  updateSelectedItems() {
+    const product = async (limit, sinceId) => {
+      const res = await this.props.fetch("/products?" + sinceId);
+      return await res.json();
+    };
+    const productsTempArray = this.state.selectedItems.map((selected) =>
+      product(0, selected).then((data) => data.body.product)
+    );
+
+    let temp = {};
+    Promise.allSettled(productsTempArray).then((values) => {
+      values.forEach((val, i) => {
+        temp[`${this.state.selectedItems[i]}`] = val.value;
+      });
+      this.setState({
+        selectedNodes: temp,
+      });
+    });
+  }
 
   render() {
     const nodesById = {};
-    console.log(this.props.products);
-    this.props.products.forEach((node) => (nodesById[node.id] = node));
+    if (!!this.state.selectedItems.length) {
+      this.state.selectedItems.forEach((node) => (nodesById[node.id] = node));
+    } else {
+      this.props.products.forEach((node) => (nodesById[node.id] = node));
+    }
 
     return (
       <>
@@ -40,7 +56,7 @@ class ResourceListWithProducts extends React.Component {
             selectedItems.forEach(
               (item) => (selectedNodes[item] = nodesById[item])
             );
-            console.log(selectedNodes);
+            console.log(selectedItems);
             return this.setState({
               selectedItems: selectedItems,
               selectedNodes: selectedNodes,
@@ -91,6 +107,7 @@ class ResourceListWithProducts extends React.Component {
         <ApplyProductImageResize
           selectedItems={this.state.selectedNodes}
           fetch={this.props.fetch}
+          updateParent={this.updateSelectedItems.bind(this)}
         />
       </>
     );

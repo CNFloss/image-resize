@@ -3,7 +3,7 @@ import { ApolloProvider } from "react-apollo";
 import App from "next/app";
 import { AppProvider } from "@shopify/polaris";
 import { Provider, useAppBridge } from "@shopify/app-bridge-react";
-import { authenticatedFetch, getSessionToken } from "@shopify/app-bridge-utils";
+import { authenticatedFetch } from "@shopify/app-bridge-utils";
 import { Redirect } from "@shopify/app-bridge/actions";
 import "@shopify/polaris/dist/styles.css";
 import translations from "@shopify/polaris/locales/en.json";
@@ -20,7 +20,6 @@ function userLoggedInFetch(app) {
       const authUrlHeader = response.headers.get(
         "X-Shopify-API-Request-Failure-Reauthorize-Url"
       );
-
       const redirect = Redirect.create(app);
       redirect.dispatch(Redirect.Action.APP, authUrlHeader || `/auth`);
       return null;

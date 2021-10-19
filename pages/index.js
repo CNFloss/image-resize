@@ -33,26 +33,21 @@ class Index extends React.Component {
           showVariants={false}
           open={this.state.open}
           onSelection={(resources) => {
-            const idsFromResources = resources.selection.map((product) => {
-              return product.id.substring(
+            const idsFromResources = resources.selection.map((product) =>
+              product.id.substring(
                 product.id.lastIndexOf("/") + 1,
                 product.id.length
-              );
-            });
-            let productsTempArray = [];
-            for (let prod of idsFromResources) {
-              let temp = product(0, prod).then((data) => {
-                return data.body.product;
-              });
-              productsTempArray.push(temp);
-            }
-            Promise.all(productsTempArray).then((values) => {
-              console.log(values);
-              this.setState({
-                selectedProducts: values,
+              )
+            );
+            const productsTempArray = idsFromResources.map((selected) =>
+              product(0, selected).then((data) => data.body.product)
+            );
+            Promise.allSettled(productsTempArray).then((values) => {
+              store.set("ids", idsFromResources);
+              return this.setState({
+                selectedProducts: values.map((prod) => prod.value),
                 open: false,
               });
-              store.set("ids", idsFromResources);
             });
           }}
           onCancel={() => this.setState({ open: false })}
