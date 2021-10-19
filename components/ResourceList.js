@@ -101,7 +101,8 @@ class ResourceListWithProducts extends React.Component {
                     Suggested Size:{" "}
                     {item.image.width / item.image.height < 1.4
                       ? "Landscape"
-                      : "Portrait"}
+                      : "Portrait"}{" "}
+                    : {item.image.width / item.image.height}
                   </Stack.Item>
                 </Stack>
               </ResourceList.Item>
