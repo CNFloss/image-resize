@@ -100,8 +100,8 @@ class ResourceListWithProducts extends React.Component {
                     </h3>
                     Suggested Size:{" "}
                     {item.image.height / item.image.width < 1.4
-                      ? "Landscape"
-                      : "Portrait"}{" "}
+                      ? "Landscape,"
+                      : "Portrait,"}{" "}
                     Needed?:{" "}
                     {Math.round((item.image.height / item.image.width) * 10) /
                       10 ===
@@ -109,12 +109,11 @@ class ResourceListWithProducts extends React.Component {
                     Math.round((item.image.height / item.image.width) * 10) /
                       10 ===
                       1.3
-                      ? "No"
-                      : "Yes"}
+                      ? "No,"
+                      : "Yes,"}{" "}
                     Ratio:{" "}
                     {Math.round((item.image.height / item.image.width) * 10) /
-                      10 ===
-                      1}
+                      10}
                   </Stack.Item>
                 </Stack>
               </ResourceList.Item>
