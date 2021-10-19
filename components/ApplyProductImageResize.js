@@ -121,7 +121,7 @@ class ApplyProductImageResize extends React.Component {
                 });
               }}
             >
-              Image Resize Medium
+              Image Resize Landscape
             </Button>
             <Button
               primary

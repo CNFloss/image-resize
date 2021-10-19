@@ -99,7 +99,7 @@ class ResourceListWithProducts extends React.Component {
                       <TextStyle variation="strong">{item.title}</TextStyle>
                     </h3>
                     Suggested Size:{" "}
-                    {item.image.height / item.image.width < 1.4
+                    {item.image.height / item.image.width < 1.3
                       ? "Landscape,"
                       : "Portrait,"}{" "}
                     Needed?:{" "}
